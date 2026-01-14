@@ -261,12 +261,29 @@ void StartTask03(void *argument)
             LCD_SetColors(BLACK, BLACK); // 用黑色擦除它
             NT35510_DispStringLine_EN(LINE(5), (char*)"                      *"); 
         }
+		// 新增：在屏幕最底部显示堆栈余量（调试用）
+    char debug_buf[32];
+    uint32_t free_mark = uxTaskGetStackHighWaterMark(NULL); // NULL 代表获取当前任务
+    sprintf(debug_buf, "Stack Free: %ld  ", free_mark);
+    LCD_SetColors(GREEN, BLACK); // 用灰色小字显示
+    NT35510_DispStringLine_EN(LINE(14), (char*)debug_buf);
     }
-  }  /* USER CODE END StartTask03 */
+  }  
+	/* USER CODE END StartTask03 */
 }
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
+#include "task.h" 
 
+void Check_Stack_Level(void) {
+    // 获取 TaskLCD 任务的剩余堆栈“水位”
+    // 这个函数返回的是字 (Words) 为单位的剩余空间
+    uint32_t lcd_stack_free = uxTaskGetStackHighWaterMark(TaskLCDHandle);
+    uint32_t lora_stack_free = uxTaskGetStackHighWaterMark(TaskLoRaHandle);
+
+    // 打印到串口，或者直接显示在 LCD 屏幕最下方
+    printf("Stack Free -> LCD: %ld words, LoRa: %ld words\r\n", lcd_stack_free, lora_stack_free);
+}
 /* USER CODE END Application */
 
