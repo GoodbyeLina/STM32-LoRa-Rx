@@ -5,14 +5,11 @@
 #include "bsp_nt35510_lcd.h"
 #include "fonts.h"
 
-// --- 变量定义 ---
-#define RX_BUFFER_SIZE 128       // 定义一个足够大的缓冲区
-uint8_t rx_byte_u3;              // UART3 临时接收 1 字节的变量
-uint8_t raw_buffer[RX_BUFFER_SIZE]; // 滑动窗口缓冲区
-uint8_t buffer_index = 0;        // 当前缓冲区索引
-
-LoRa_Packet_t received_data;     // 解析成功后的数据包
-uint8_t is_data_ready = 0;       // 数据包就绪标志
+uint8_t is_data_ready = 0;
+uint8_t raw_buffer[128]; // 这里写下实际大小
+uint16_t buffer_index = 0;
+uint8_t rx_byte_u3 = 0;
+LoRa_Packet_t received_data;
 
 /**
  * @brief 接收处理函数，在中断回调中被调用
