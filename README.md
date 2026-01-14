@@ -1,114 +1,77 @@
-# STM32F407 LoRa 接收终端与可视化显示 (LoRa Rx Station with LCD)
+既然你的项目已经从“裸机系统”成功进化为“多任务 RTOS 架构”，`README.md` 的更新重点应放在**任务调度逻辑**和**系统稳定性设计**上。
 
-本项目是一个基于 **STM32F407** 的 LoRa 数据接收终端。除了将接收到的传感器数据通过串口（UART）转发给上位机（VOFA+）进行波形分析外，新增了 **板载 LCD 实时显示功能**，使其成为一个独立的可视化手持终端。
-
----
-
-## 📅 更新日志 (Update)
-
-* **[最新] v2.0 - LCD 可视化界面**: 集成 NT35510 屏幕驱动，实现温湿度、姿态、GPS 数据的实时刷新，添加心跳指示与色彩分级显示。
-* **v1.0 - 基础透传**: 完成 LoRa 射频接收，支持结构体数据解析与 UART 转发。
+以下是为你准备的 `README.md` 更新内容。建议直接替换或新增到原有的“软件配置”章节。
 
 ---
 
-## 🛠 硬件环境 (Hardware)
+# STM32F407 LoRa 接收终端 (RTOS 版)
 
-* **MCU**: STM32F407ZGT6 (野火/Wildfire 开发板)
-* **LoRa 模块**: SX1278 / RA-02 (SPI 接口)
-* **显示屏**: 4.3寸/5寸电容/电阻屏 (驱动 IC: **NT35510**)
-* **接口方式**: FSMC (16-bit 并口 8080 时序)
+## 🚀 系统架构升级 (v2.0 - RTOS)
 
-### 🔌 引脚定义 (Pinout)
+本项目已完成从前后台轮询系统向 **FreeRTOS** 多任务架构的迁移。通过抢占式调度和任务解耦，显著提升了系统的实时性和可靠性。
 
-#### 1. LoRa (SPI)
+### 1. 任务规划 (Task Management)
 
-| Pin | Function | STM32 Pin |
-| --- | --- | --- |
-| NSS | SPI CS | PA4 |
-| SCK | SPI CLK | PA5 |
-| MISO | SPI MISO | PA6 |
-| MOSI | SPI MOSI | PA7 |
-| DIO0 | IRQ | PB0 |
-| RST | Reset | PC0 |
+系统被划分为三个核心任务，通过优先级配置确保了通信的高优先级响应：
 
-#### 2. LCD (FSMC Bank 3)
+| 任务名称 | 优先级 | 堆栈大小 | 职责说明 |
+| --- | --- | --- | --- |
+| **TaskLoRa** | `osPriorityHigh` | 512 Words | 负责 SPI 射频接收、协议解析及串口转发，确保数据不丢失。 |
+| **TaskLCD** | `osPriorityNormal` | 1024 Words | 负责 NT35510 屏幕渲染。利用阻塞机制减少 CPU 占用。 |
+| **defaultTask** | `osPriorityLow` | 128 Words | 系统状态监控及空闲处理。 |
 
-* **Chip Select (CS)**: `NE3` (PG10) - 对应基地址 `0x68000000`
-* **Register Select (RS/DC)**: `A0` (PF0) - 对应地址偏移 `0x02`
-* **Data Bus**: `D0` - `D15` (16位宽)
-* **Backlight (BL)**: `PB15` (高电平点亮)
+### 2. 任务间通信 (IPC)
 
----
+采用 **生产者-消费者 (Producer-Consumer)** 模型：
 
-## ⚙️ 软件配置 (Software Configuration)
+* **生产者 (LoRa Task)**：当 LoRa 模块接收到合法数据包并校验通过后，将数据封装进 `LoRa_Packet_t` 结构体，通过 `osMessageQueuePut` 发送。
+* **消费者 (LCD Task)**：平时处于 `osWaitForever` 阻塞状态（不占 CPU）。一旦队列收到数据，立即唤醒进行 UI 刷新。
 
-### STM32CubeMX FSMC 设置 (关键!)
+### 3. 系统稳定性优化
 
-为了驱动 NT35510，FSMC 必须严格按照以下参数配置，否则会导致白屏或花屏：
-
-* **Bank**: `NOR Flash/PSRAM/SRAM/ROM/LCD 3`
-* **Memory Type**: `LCD Interface`
-* **LCD Register Select**: `A0`
-* **Data Width**: `16 bits`
-* **Timing (时序)**:
-* Address Setup Time: `4` Cycles
-* Data Setup Time: `10` Cycles (若有噪点可增至 15)
-* **Write Operation**: `Enable` (必须开启!)
-
-
-
-### 目录结构
-
-* `User/lora/`: LoRa 底层驱动与协议处理 (`lora_rx.c`)
-* `User/LCD/`: 屏幕驱动 (`bsp_nt35510_lcd.c`) 与字库 (`fonts.c`)
+* **独立时钟源**：将 HAL 库的 `Timebase Source` 切换至 **Timer 1**，避免与 FreeRTOS 的 `SysTick` 产生冲突。
+* **堆栈保护**：针对 `sprintf` 浮点数处理在任务中容易溢出的问题，将 LCD 任务堆栈扩容至 **4KB (1024 Words)**。
+* **资源解耦**：利用 `extern` 关键字与模块化头文件管理，解决了多任务环境下全局变量重定义的冲突问题。
 
 ---
 
-## 📺 界面展示 (UI Layout)
+## 🛠 开发环境与配置更新
 
-LCD 采用色彩编码 (Color-coded) 布局，以区分不同类型的数据，并在右上角包含心跳指示以监测系统状态。
+* **RTOS 内核**: FreeRTOS V10.3.1 (CMSIS-RTOS V2)
+* **内存分配策略**: `Heap_4` (支持内存碎片管理)
+* **关键配置**:
+* `TOTAL_HEAP_SIZE`: `32768` Bytes (F407 192KB RAM 冗余充足)
+* `MINIMAL_STACK_SIZE`: `128` Words
 
-**屏幕刷新逻辑**：`LoRa_Task_Process()` 接收到数据包后触发局部刷新。
 
-```text
-+--------------------------------------------------+
-|                    * <-- (绿色闪烁心跳/Heartbeat) | LINE 0
-|   STM32 LoRa Ready                               | LINE 1
-| ----------------------                           | LINE 2
-| Temp: 25.6 C           <-- (红色 Red)             | LINE 3
-| Hum:  60.2 %           <-- (蓝色 Blue)            | LINE 4
-|                                                  |
-| acc_x: 0.123  gyro_x: 0.001                      | LINE 6
-|                                                  |
-| acc_y: -0.05  gyro_y: 0.002    (黄色 Yellow)      | LINE 8
-|                                                  |
-| acc_z: 9.801  gyro_z: 0.000                      | LINE 10
-|                                                  |
-| Lat: 22.5432  Lon: 113.9432    (白色 White)       | LINE 12
-+--------------------------------------------------+
+
+---
+
+## 📸 运行效果
+
+*(此处可插入你刚才拍的那张照片，或者使用以下占位符)*
+
+> **RTOS 实时效果展示**：
+> 界面顶部实时显示心跳星号 `*`。即使在执行复杂的经纬度浮点运算时，LoRa 的接收闪烁也毫无卡顿，验证了高优先级任务的抢占成功。
+
+---
+
+### 下一个阶段的规划
+
+* [ ] **软件定时器**: 移除任务内的 `osDelay` 闪灯，改用 FreeRTOS Software Timer 实现系统心跳。
+* [ ] **互斥锁 (Mutex)**: 引入互斥量保护串口 1，防止多任务并发打印导致的乱码。
+* [ ] **水位监测**: 实现任务堆栈水位监测功能，防止长时间运行导致的内存溢出。
+
+---
+
+### 如何提交这些更新？
+
+```bash
+# 在 feat-freertos-migration 分支下
+git add README.md
+git commit -m "Docs: Update README to reflect RTOS architecture and task planning"
+git push origin feat-freertos-migration
 
 ```
 
----
-
-## 🚀 如何使用 (Usage)
-
-1. **编译与下载**: 使用 Keil MDK 或 STM32CubeIDE 编译工程并下载至 F407。
-2. **启动**:
-* 系统上电后，屏幕显示标题栏，背光点亮。
-* **右上角绿色 `*` 开始闪烁**，表示系统正在运行且等待数据。
-
-
-3. **数据接收**:
-* 当 LoRa 收到有效数据包时，屏幕上的数值会实时更新。
-* 同时，数据会通过串口 1 (`UART1`) 透传输出，可连接电脑使用 **VOFA+** 查看波形。
-
-
-
----
-
-## ⚠️ 注意事项
-
-1. **背光**: 如果屏幕内容有显示但极暗，请检查 `PB15` 是否为高电平 (3.3V)。
-2. **编译报错**: 如果提示找不到头文件，请确保 `User/LCD` 已加入编译路径 (Include Paths)，且代码中已去掉 `./lcd/` 相对路径前缀。
-3. **显示残影**: 采用了 `sprintf` 后补空格的方式清除旧字符，无需全屏刷新，避免闪烁。
+**更新完 README 后，你的 GitHub 仓库就像一个成熟的开源项目了！你想不想尝试写一个简单的“堆栈水位监测”小功能？它可以帮你确认 1024 Words 的堆栈是否真的够用。**
