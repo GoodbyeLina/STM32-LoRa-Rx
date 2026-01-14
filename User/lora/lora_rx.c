@@ -112,6 +112,23 @@ void LoRa_Task_Process(void) {
         
         // 记得最后改回白色，以免影响其他显示
         LCD_SetColors(WHITE, BLACK);
+				
+				// ----------------------------------------
+        // 3. 心跳指示 (Heartbeat)
+        // ----------------------------------------
+        // 定义一个静态变量，每次进入函数时它的值会被保留
+        static uint8_t heartbeat_toggle = 0; 
+        
+        heartbeat_toggle = !heartbeat_toggle; // 每次取反：0->1, 1->0
+
+        if (heartbeat_toggle) {
+            LCD_SetColors(GREEN, BLACK); 
+            // 在第0行末尾画一个圈或星号
+            NT35510_DispStringLine_EN(LINE(5), (char*)"                      *"); 
+        } else {
+            LCD_SetColors(BLACK, BLACK); // 用黑色擦除它
+            NT35510_DispStringLine_EN(LINE(5), (char*)"                      *"); 
+        }
 #endif
 			
     }
