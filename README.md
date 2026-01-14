@@ -27,6 +27,28 @@
 * **生产者 (LoRa Task)**：当 LoRa 模块接收到合法数据包并校验通过后，将数据封装进 `LoRa_Packet_t` 结构体，通过 `osMessageQueuePut` 发送。
 * **消费者 (LCD Task)**：平时处于 `osWaitForever` 阻塞状态（不占 CPU）。一旦队列收到数据，立即唤醒进行 UI 刷新。
 
+graph TD
+    subgraph "High Priority: TaskLoRa (Producer)"
+        A[RF Data Received] --> B{CRC Check}
+        B -- Pass --> C[Parse to Structure]
+        C --> D[osMessageQueuePut]
+    end
+
+    subgraph "Queue Buffer"
+        D --> E[LoRaDataQueue]
+    end
+
+    subgraph "Normal Priority: TaskLCD (Consumer)"
+        E --> F[osMessageQueueGet]
+        F -- Data Ready --> G[Format String]
+        G --> H[FSMC LCD Refresh]
+        H --> F
+    end
+
+    style E fill:#f9f,stroke:#333,stroke-width:2px
+    style A fill:#dfd,stroke:#333
+    style H fill:#ddf,stroke:#333
+
 ### 3. 系统稳定性优化
 
 * **独立时钟源**：将 HAL 库的 `Timebase Source` 切换至 **Timer 1**，避免与 FreeRTOS 的 `SysTick` 产生冲突。
