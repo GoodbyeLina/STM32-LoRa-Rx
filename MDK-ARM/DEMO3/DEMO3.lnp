@@ -1,10 +1,12 @@
---cpu=Cortex-M4.fp
+--cpu=Cortex-M4.fp.sp
 "demo3\startup_stm32f407xx.o"
 "demo3\main.o"
 "demo3\gpio.o"
 "demo3\usart.o"
 "demo3\stm32f4xx_it.o"
 "demo3\stm32f4xx_hal_msp.o"
+"demo3\system_stm32f4xx.o"
+"demo3\lora_rx.o"
 "demo3\stm32f4xx_hal_uart.o"
 "demo3\stm32f4xx_hal_rcc.o"
 "demo3\stm32f4xx_hal_rcc_ex.o"
@@ -19,9 +21,7 @@
 "demo3\stm32f4xx_hal_cortex.o"
 "demo3\stm32f4xx_hal.o"
 "demo3\stm32f4xx_hal_exti.o"
-"demo3\system_stm32f4xx.o"
-"demo3\lora_rx.o"
 --library_type=microlib --strict --scatter "DEMO3\DEMO3.sct"
---summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "DEMO3.map" -o DEMO3\DEMO3.axf

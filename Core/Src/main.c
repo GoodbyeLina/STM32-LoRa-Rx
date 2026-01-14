@@ -125,7 +125,9 @@ int main(void)
     // --- 3. 轮询处理数据 ---
     LoRa_Task_Process();
 
-    
+//    HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+//		
+//		HAL_Delay(500);
 
   }
   /* USER CODE END 3 */

@@ -55,7 +55,7 @@ void LoRa_Rx_Handler(uint8_t byte) {
 void LoRa_Task_Process(void) {
     if (is_data_ready) {
         is_data_ready = 0; // 清除标志
-
+#if 0
         // --- 打印到电脑 (UART1) ---
         printf("\r\n=== LoRa Data Received ===\r\n");
         printf("Temp: %.1f C, Hum: %.1f %%\r\n", received_data.temperature, received_data.humidity);
@@ -63,5 +63,10 @@ void LoRa_Task_Process(void) {
                received_data.acc_x, received_data.acc_y, received_data.acc_x, received_data.acc_y); // 这里根据你实际数据的含义打印
         printf("GPS: Lat=%.6f, Lon=%.6f\r\n", received_data.latitude, received_data.longitude);
         printf("==========================\r\n");
+#endif
+			
+#if 1
+			HAL_UART_Transmit(&huart1, (uint8_t*)&received_data, sizeof(LoRa_Packet_t), 100);
+#endif
     }
 }
