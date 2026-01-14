@@ -28,8 +28,13 @@ demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.
 demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
 demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
 demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h
+demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sram.h
+demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_fsmc.h
 demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h
 demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
 demo3\lora_rx.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 demo3\lora_rx.o: D:\Program Files\stm32\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 demo3\lora_rx.o: D:\Program Files\stm32\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+demo3\lora_rx.o: ..\User\lcd\bsp_nt35510_lcd.h
+demo3\lora_rx.o: ..\User\font\fonts.h
+demo3\lora_rx.o: ..\User\font\fonts.h

@@ -20,12 +20,15 @@
 #include "main.h"
 #include "usart.h"
 #include "gpio.h"
+#include "fsmc.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 #include <stdio.h>
 #include "lora_protocol.h"
+#include "bsp_nt35510_lcd.h"
+#include "fonts.h"
 
 /* USER CODE END Includes */
 
@@ -104,6 +107,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
+  MX_FSMC_Init();
   /* USER CODE BEGIN 2 */
 
   printf("STM32F407 LoRa Receiver Ready!\r\n");
@@ -113,6 +117,26 @@ int main(void)
   // 启动接收 1 个字节，数据存入 rx_byte_u3
   HAL_UART_Receive_IT(&huart3, &rx_byte_u3, 1);
 
+
+	// 1. 初始化屏幕 (这一步非常关键)
+  NT35510_Init(); 
+  
+  // 2. 确保背光点亮 (双重保险)
+  HAL_GPIO_WritePin(LCD_BL_GPIO_Port, LCD_BL_Pin, GPIO_PIN_SET);
+  
+  // 3. 刷屏测试
+  // 模式6通常是横屏，如果方向反了试下 0-7
+  NT35510_GramScan(6);          
+  
+  // 清屏为黑色
+  LCD_SetColors(WHITE, BLACK);
+  NT35510_Clear(0, 0, 800, 480); 
+
+  // 显示文字
+  LCD_SetFont(&Font16x32);
+  NT35510_DispStringLine_EN(LINE(1), (char*)"     STM32 LoRa Ready     ");
+  NT35510_DispStringLine_EN(LINE(2), (char*)"--------------------------");
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */

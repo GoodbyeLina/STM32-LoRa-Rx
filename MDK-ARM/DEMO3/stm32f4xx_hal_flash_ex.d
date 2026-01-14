@@ -25,6 +25,8 @@ demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM3
 demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
 demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
 demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h
+demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sram.h
+demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_fsmc.h
 demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h
 demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
 demo3\stm32f4xx_hal_flash_ex.o: C:/Users/Administrator/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
