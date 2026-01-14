@@ -1,0 +1,24 @@
+# --- Keil/MDK 编译产生的垃圾文件 ---
+*.o
+*.d
+*.crf
+*.dep
+*.axf
+*.htm
+*.lnp
+*.sct
+*.lst
+*.map
+*.iex
+*.uvoptx
+*.uvguix.*
+*.scvd
+
+# --- 忽略编译输出文件夹 ---
+# 根据截图，MDK-ARM 下可能有 DEMO3 文件夹存放中间文件
+MDK-ARM/DEMO3/
+MDK-ARM/DebugConfig/
+MDK-ARM/RTE/
+
+# --- STM32CubeMX ---
+.mxproject
