@@ -17,6 +17,7 @@ typedef struct {
     float gyro_z;
     float latitude;
     float longitude;
+		uint16_t crc16;    // 接收到的校验位
     uint32_t tail; // 校验尾: 0x7F800000 (内存中为 00 00 80 7F)
 } LoRa_Packet_t;
 #pragma pack()

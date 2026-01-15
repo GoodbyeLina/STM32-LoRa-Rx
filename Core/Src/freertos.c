@@ -269,7 +269,7 @@ void StartTask03(void *argument)
     NT35510_DispStringLine_EN(LINE(14), (char*)debug_buf);
     }
   }  
-	/* USER CODE END StartTask03 */
+  /* USER CODE END StartTask03 */
 }
 
 /* Private application code --------------------------------------------------*/

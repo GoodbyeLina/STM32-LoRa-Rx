@@ -11,6 +11,8 @@ uint16_t buffer_index = 0;
 uint8_t rx_byte_u3 = 0;
 LoRa_Packet_t received_data;
 
+uint16_t Calculate_CRC16(uint8_t *ptr, uint16_t len);
+
 /**
  * @brief 接收处理函数，在中断回调中被调用
  * @param byte 刚刚接收到的一个字节
@@ -31,18 +33,30 @@ void LoRa_Rx_Handler(uint8_t byte) {
         uint32_t *tail_ptr = (uint32_t*)&raw_buffer[buffer_index - 4];
         
         if (*tail_ptr == 0x7F800000) {
-            // --- 帧尾匹配成功 ---
-            
-            // 计算包头的起始位置
+					
+						// --- 帧尾匹配成功 ---
             uint8_t start_index = buffer_index - LORA_PACKET_SIZE;
             
-            // 内存拷贝：将缓冲区的数据复制到结构体中
+            // 先临时拷贝到结构体中，以便提取其中的数据和收到的 CRC
             memcpy(&received_data, &raw_buffer[start_index], LORA_PACKET_SIZE);
             
-            is_data_ready = 1; // 设置标志位，通知 main 函数处理
+            // 2. CRC 校验逻辑
+            // 计算前 40 字节（10个 float）的校验值
+            uint16_t cal_crc = Calculate_CRC16(&raw_buffer[start_index], 40);
             
-            // 5. 复位索引：为了简单起见，接收成功后清空缓冲区索引
-            // 这样可以避免处理残留数据，准备接收下一包
+            // 3. 比对：计算出的 CRC 是否等于结构体中收到的 CRC
+            if (cal_crc == received_data.crc16) {
+                // 校验通过，标记数据有效
+                is_data_ready = 1; 
+                // 可选：在调试阶段打印成功信息
+                // printf("[LoRa] CRC Pass\r\n");
+            } else {
+                // 校验失败，说明中间字节有误，不设置 is_data_ready
+                // 打印错误以便排查环境干扰
+                printf("[LoRa] CRC Error! Cal:0x%04X, Recv:0x%04X\r\n", cal_crc, received_data.crc16);
+            }
+            
+            // 4. 复位索引，准备接收下一包
             buffer_index = 0;
         }
     }
@@ -130,3 +144,25 @@ void LoRa_Task_Process(void) {
 			
     }
 }
+
+/**
+  * @brief CRC16-MODBUS 校验算法
+  * @param ptr: 数据首地址, len: 需要校验的长度
+  * @retval 计算出的16位校验值
+  */
+uint16_t Calculate_CRC16(uint8_t *ptr, uint16_t len) {
+    uint16_t crc = 0xFFFF;
+    for (uint16_t i = 0; i < len; i++) {
+        crc ^= ptr[i];
+        for (uint8_t j = 0; j < 8; j++) {
+            if (crc & 0x0001) {
+                crc >>= 1;
+                crc ^= 0xA001;
+            } else {
+                crc >>= 1;
+            }
+        }
+    }
+    return crc;
+}
+
