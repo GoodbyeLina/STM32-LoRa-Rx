@@ -2,33 +2,53 @@
 #define __LORA_PROTOCOL_H
 
 #include <stdint.h>
+#include <stddef.h>  // offsetof
 
+// Ğ­Òé°æ±¾
+#define LORA_PACKET_VER 0x02
 
-// å¿…é¡»å¼ºåˆ¶ 1 å­—èŠ‚å¯¹é½
+// ±ØĞëÇ¿ÖÆ 1 ×Ö½Ú¶ÔÆë
 #pragma pack(1) 
 typedef struct {
-    float temperature;
-    float humidity;
-    float acc_x;
-    float acc_y;
-    float acc_z;
-    float gyro_x;
-    float gyro_y;
-    float gyro_z;
-    float latitude;
-    float longitude;
-		uint16_t crc16;    // æ¥æ”¶åˆ°çš„æ ¡éªŒä½
-    uint32_t tail; // æ ¡éªŒå°¾: 0x7F800000 (å†…å­˜ä¸­ä¸º 00 00 80 7F)
+    // ========== »·¾³Êı¾İ (8 bytes) ==========
+    float temperature;   // ÎÂ¶È (¡ãC)
+    float humidity;      // Êª¶È (%)
+
+    // ========== ×ËÌ¬Êı¾İ (24 bytes) ==========
+    float acc_x;         // XÖá¼ÓËÙ¶È (g)
+    float acc_y;         // YÖá¼ÓËÙ¶È (g)
+    float acc_z;         // ZÖá¼ÓËÙ¶È (g)
+    float gyro_x;        // XÖá½ÇËÙ¶È (¡ã/s)
+    float gyro_y;        // YÖá½ÇËÙ¶È (¡ã/s)
+    float gyro_z;        // ZÖá½ÇËÙ¶È (¡ã/s)
+
+    // ========== ¶¨Î»Êı¾İ (16 bytes) ==========
+    float latitude;      // Î³¶È (Ê®½øÖÆ¶È)
+    float longitude;     // ¾­¶È (Ê®½øÖÆ¶È)
+    float altitude;      // º£°Î¸ß¶È (m)
+    float hdop;          // Ë®Æ½¾«¶ÈÒò×Ó
+
+    // ========== RTK ×´Ì¬ (4 bytes) ==========
+    uint8_t fix_type;    // RTK ½â×´Ì¬: 0=ÎŞĞ§, 4=¹Ì¶¨½â, 5=¸¡µã½â
+    uint8_t satellites;  // ¸ú×ÙÎÀĞÇÊı
+    uint8_t reserved[2]; // ±£Áô×Ö½Ú
+
+    // ========== Ğ£Ñé (6 bytes) ==========
+    uint16_t crc16;      // CRC16
+    uint32_t tail;       // Ö¡Î²: 0x7F800000
 } LoRa_Packet_t;
 #pragma pack()
 
-#define LORA_PACKET_SIZE sizeof(LoRa_Packet_t) // 44å­—èŠ‚
-// --- å˜é‡å®šä¹‰ ---
-#define RX_BUFFER_SIZE 128       // å®šä¹‰ä¸€ä¸ªè¶³å¤Ÿå¤§çš„ç¼“å†²åŒº
-extern uint8_t rx_byte_u3;              // UART3 ä¸´æ—¶æ¥æ”¶ 1 å­—èŠ‚çš„å˜é‡
-extern uint8_t raw_buffer[RX_BUFFER_SIZE]; // æ»‘åŠ¨çª—å£ç¼“å†²åŒº
-extern uint16_t buffer_index;        // å½“å‰ç¼“å†²åŒºç´¢å¼•
+// Êı¾İ°ü´óĞ¡³£Á¿
+#define LORA_DATA_SIZE      offsetof(LoRa_Packet_t, crc16)  // CRC Ğ£Ñé·¶Î§ (52×Ö½Ú)
+#define LORA_PACKET_SIZE    sizeof(LoRa_Packet_t)           // ×Ü°ü´óĞ¡ (58×Ö½Ú)
+
+// --- ±äÁ¿¶¨Òå ---
+#define RX_BUFFER_SIZE 128       // ¶¨ÒåÒ»¸ö×ã¹»´óµÄ»º³åÇø
+extern uint8_t rx_byte_u3;              // UART3 ÁÙÊ±½ÓÊÕ 1 ×Ö½ÚµÄ±äÁ¿
+extern uint8_t raw_buffer[RX_BUFFER_SIZE]; // »¬¶¯´°¿Ú»º³åÇø
+extern uint16_t buffer_index;        // µ±Ç°»º³åÇøË÷Òı
 extern LoRa_Packet_t received_data;
-extern uint8_t is_data_ready;       // æ•°æ®åŒ…å°±ç»ªæ ‡å¿—
+extern uint8_t is_data_ready;       // Êı¾İ°ü¾ÍĞ÷±êÖ¾
 
 #endif
